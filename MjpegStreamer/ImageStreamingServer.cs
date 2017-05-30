@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -17,28 +18,15 @@ namespace MjpegStreamer
 
         private List<Socket> _Clients;
         private Thread _Thread;
-
-        public ImageStreamingServer() 
-            : this( WebCamImageSource.Snapshots() )
-        {}
-
-        public ImageStreamingServer( IEnumerable<Image> imagesSource )
+        
+        public ImageStreamingServer()
         {
 
             _Clients = new List<Socket>();
             _Thread = null;
-
-            ImagesSource = imagesSource;
+            
             this.Interval = 2000;
-
         }
-
-
-        /// <summary>
-        /// Gets or sets the source of images that will be streamed to the 
-        /// any connected client.
-        /// </summary>
-        public static IEnumerable<Image> ImagesSource { get; set; }
 
         /// <summary>
         /// Gets or sets the interval in milliseconds (or the delay time) between 
@@ -160,19 +148,22 @@ namespace MjpegStreamer
                     wr.WriteHeader();
 
                     // Streams the images from the source to the client.
-                    foreach ( var imgStream in WebCamImageSource.Streams( ImagesSource ) )
-                    {
+                    while ( true ) { 
                         if ( this.Interval > 0 )
                         {
                             Thread.Sleep( this.Interval );
                         }
+                        Image image = WebCamImageSource.Snapshot();
+                        MemoryStream imgStream = WebCamImageSource.Stream( image );
 
                         wr.Write( imgStream );
+
+                        image.Dispose();
+                        imgStream.Dispose();
                     }
                 }
             }
             catch { }
-
             finally
             {
                 lock ( _Clients )

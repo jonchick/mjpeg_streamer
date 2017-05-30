@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -10,38 +11,21 @@ namespace MjpegStreamer
 {
     public static class WebCamImageSource
     {
-        public static IEnumerable<Image> Snapshots()
+        public static Image Snapshot()
         {
-            Bitmap bitmap;
-            while ( true )
-            {
-                WebRequest request = WebRequest.Create( "http://vps.yolahome.ru/webcam" );
-                WebResponse response = request.GetResponse();
-                Stream responseStream = response.GetResponseStream();
-                bitmap = new Bitmap( responseStream );
-
-                yield return bitmap;
-            }
-
-            // bitmap.Dispose();
-            // yield break;
+            WebRequest request = WebRequest.Create( "http://vps.yolahome.ru/webcam" );
+            WebResponse response = request.GetResponse();
+            Stream responseStream = response.GetResponseStream();
+            return new Bitmap( responseStream );
         }
 
-        internal static IEnumerable<MemoryStream> Streams( this IEnumerable<Image> source )
+        internal static MemoryStream Stream( Image image )
         {
-            MemoryStream ms = new MemoryStream();
+            MemoryStream stream = new MemoryStream();
 
-            foreach ( var img in source )
-            {
-                ms.SetLength( 0 );
-                img.Save( ms, System.Drawing.Imaging.ImageFormat.Jpeg );
-                yield return ms;
-            }
-
-            ms.Close();
-            ms = null;
-
-            yield break;
+            stream.SetLength( 0 );
+            image.Save( stream, ImageFormat.Jpeg );
+            return stream;
         }
     }
 }
