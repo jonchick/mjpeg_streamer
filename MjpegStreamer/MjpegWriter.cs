@@ -38,12 +38,6 @@ namespace MjpegStreamer
             this.Stream.Flush();
         }
 
-        public void Write( Image image )
-        {
-            MemoryStream ms = BytesOf( image );
-            this.Write( ms );
-        }
-
         public void Write( MemoryStream imageStream )
         {
             StringBuilder sb = new StringBuilder();
@@ -59,11 +53,6 @@ namespace MjpegStreamer
             Write( "\r\n" );
 
             this.Stream.Flush();
-        }
-
-        private void Write( byte[] data )
-        {
-            this.Stream.Write( data, 0, data.Length );
         }
 
         private void Write( string text )
@@ -82,18 +71,6 @@ namespace MjpegStreamer
             MemoryStream ms = new MemoryStream();
             image.Save( ms, System.Drawing.Imaging.ImageFormat.Jpeg );
             return ms;
-        }
-
-        public string ReadRequest( int length )
-        {
-
-            byte[] data = new byte[length];
-            int count = this.Stream.Read( data, 0, data.Length );
-
-            if ( count != 0 )
-                return Encoding.ASCII.GetString( data, 0, count );
-
-            return null;
         }
 
         #region IDisposable Members

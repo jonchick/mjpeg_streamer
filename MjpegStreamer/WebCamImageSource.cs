@@ -1,19 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace MjpegStreamer
 {
     public static class WebCamImageSource
     {
-        public static Image Snapshot()
+        public static Image Snapshot( string imagUrl )
         {
-            WebRequest request = WebRequest.Create( "http://vps.yolahome.ru/webcam" );
+            WebRequest request = WebRequest.Create( imagUrl );
             WebResponse response = request.GetResponse();
             Stream responseStream = response.GetResponseStream();
             return new Bitmap( responseStream );

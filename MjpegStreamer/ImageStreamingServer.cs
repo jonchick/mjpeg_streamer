@@ -45,13 +45,16 @@ namespace MjpegStreamer
         /// </summary>
         public bool IsRunning { get { return ( _Thread != null && _Thread.IsAlive ); } }
 
+        private string ImageUrl { get; set; }
+
         /// <summary>
         /// Starts the server to accepts any new connections on the specified port.
         /// </summary>
         /// <param name="port"></param>
-        public void Start( int port )
+        /// <param name="imageUrl"></param>
+        public void Start( int port, string imageUrl )
         {
-
+            ImageUrl = imageUrl;
             lock ( this )
             {
                 _Thread = new Thread( new ParameterizedThreadStart( ServerThread ) );
@@ -59,14 +62,6 @@ namespace MjpegStreamer
                 _Thread.Start( port );
             }
 
-        }
-
-        /// <summary>
-        /// Starts the server to accepts any new connections on the default port (8080).
-        /// </summary>
-        public void Start()
-        {
-            this.Start( 8080 );
         }
 
         public void Stop()
@@ -153,7 +148,7 @@ namespace MjpegStreamer
                         {
                             Thread.Sleep( this.Interval );
                         }
-                        Image image = WebCamImageSource.Snapshot();
+                        Image image = WebCamImageSource.Snapshot( ImageUrl );
                         MemoryStream imgStream = WebCamImageSource.Stream( image );
 
                         wr.Write( imgStream );
